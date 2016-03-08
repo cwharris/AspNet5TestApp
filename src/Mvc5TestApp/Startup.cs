@@ -1,6 +1,7 @@
 ﻿using System;
-//using Autofac;
-//using Autofac.Extensions.DependencyInjection;
+using System.Linq;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -9,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mvc5TestApp.Models;
-using Mvc5TestApp.Services;
 
 namespace Mvc5TestApp
 {
@@ -35,7 +35,7 @@ namespace Mvc5TestApp
         public IConfigurationRoot Configuration { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
             services
@@ -52,17 +52,17 @@ namespace Mvc5TestApp
 
             services.AddMvc();
 
-            // Add application services.
-            services.AddTransient<IEmailSender, AuthMessageSender>();
-            services.AddTransient<ISmsSender, AuthMessageSender>();
+            // Register Dependencies
 
-            //var builder = new ContainerBuilder();
+            var builder = new ContainerBuilder();
 
-            //builder.Populate(services);
+            builder.Populate(services);
 
-            //var container = builder.Build();
+            builder.RegisterModule<StartupModule>();
 
-            //container.Resolve<IServiceProvider>();
+            var container = builder.Build();
+
+            return container.Resolve<IServiceProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
